@@ -27,7 +27,11 @@ namespace ApiForecast.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRol(int id)
         {
-            return Ok(await _context.Roles.FirstOrDefaultAsync(x => x.Id == id));
+            var rol = await _context.Roles.FirstOrDefaultAsync(x => x.Id == id);
+            if (rol == null){
+                return NotFound();
+            }
+            return Ok(rol);
         }
         [HttpPost]
         public async Task<IActionResult> Post(RolesInsert rol)

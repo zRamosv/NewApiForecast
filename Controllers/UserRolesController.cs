@@ -27,7 +27,11 @@ namespace ApiForecast.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserRole(int id)
         {
-            return Ok(await _context.User_Roles.Include(x => x.User).Include(x => x.Role).Include(x => x.Sucursal).FirstOrDefaultAsync(x => x.Id == id));
+            var user_Roles = await _context.User_Roles.Include(x => x.User).Include(x => x.Role).Include(x => x.Sucursal).FirstOrDefaultAsync(x => x.Id == id);
+            if (user_Roles == null){
+                return NotFound();
+            }
+            return Ok(user_Roles);
         }
         [HttpPost]
         public async Task<IActionResult> Post(UserRoleInsert user_Roles)

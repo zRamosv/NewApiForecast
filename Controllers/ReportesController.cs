@@ -24,7 +24,11 @@ namespace ApiForecast.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetReporte(int id)
         {
-            return Ok(await _context.Reportes.FirstOrDefaultAsync(x => x.Report_id == id));
+            var reporte = await _context.Reportes.FirstOrDefaultAsync(x => x.Report_id == id);
+            if (reporte == null){
+                return NotFound();
+            }
+            return Ok(reporte);
         }
         [HttpPost]
         public async Task<IActionResult> Post(ReportesInsert reporte)

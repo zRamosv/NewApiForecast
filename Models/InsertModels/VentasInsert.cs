@@ -9,7 +9,7 @@ namespace ApiForecast.Models.InsertModels
         public int Product_Id { get; set; }
         [Required]
 
-        public DateOnly Fecha { get; set; }
+        public DateTime Fecha { get; set; }
         [Required]
         public int Cantidad { get; set; }
         [Required]

@@ -9,7 +9,7 @@ namespace ApiForecast.Controllers
 {
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class VendedoresController : ControllerBase
     {
         private readonly ForecastContext _context;
@@ -27,7 +27,12 @@ namespace ApiForecast.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVendedor(int id)
         {
-            return Ok(await _context.Vendedores.FirstOrDefaultAsync(x => x.Vendor_id == id));
+            var vendedores = await _context.Vendedores.FirstOrDefaultAsync(x => x.Vendor_id == id);
+            if (vendedores == null)
+            {
+                return NotFound();
+            }
+            return Ok(vendedores);
         }
         [HttpPost]
         public async Task<IActionResult> Post(VendedoresInsert vendedores)
@@ -53,6 +58,18 @@ namespace ApiForecast.Controllers
             update.Comision = vendedores.Comision ?? update.Comision;
             await _context.SaveChangesAsync();
             return Ok(update);
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var delete = await _context.Vendedores.FirstOrDefaultAsync(x => x.Vendor_id == id);
+            if (delete == null)
+            {
+                return NotFound();
+            }
+            _context.Vendedores.Remove(delete);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
     }

@@ -28,7 +28,11 @@ namespace ApiForecast.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVenta(int id)
         {
-            return Ok(await _context.Ventas.Include(x => x.Cliente).Include(x => x.Productos).Include(x => x.Vendedores).FirstOrDefaultAsync(x => x.Venta_Id == id));
+            var venta = await _context.Ventas.Include(x => x.Cliente).Include(x => x.Productos).Include(x => x.Vendedores).FirstOrDefaultAsync(x => x.Venta_Id == id);
+            if (venta == null){
+                return NotFound();
+            }
+            return Ok(venta);
         }
         [HttpPost]
         public async Task<IActionResult> Post(VentasInsert venta)
@@ -36,7 +40,7 @@ namespace ApiForecast.Controllers
             var insert = new Ventas
             {
                 Product_Id = venta.Product_Id,
-                Fecha = venta.Fecha,
+                Fecha = DateOnly.FromDateTime(venta.Fecha),
                 Cantidad = venta.Cantidad,
                 Precio = venta.Precio,
                 Client_id = venta.Client_id,
