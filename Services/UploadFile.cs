@@ -22,11 +22,21 @@ namespace ApiForecast.Services
                 return null;
             }
 
+          
+            var uid = Guid.NewGuid().ToString();
+
+      
+            var originalFileName = file.FileName;
+            var extension = Path.GetExtension(originalFileName);
+            var newFileName = $"{Path.GetFileNameWithoutExtension(originalFileName)}_{uid}{extension}";
+
             using var content = new MultipartFormDataContent();
             using var filestream = file.OpenReadStream();
             using var filecontent = new StreamContent(filestream);
             filecontent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-            content.Add(filecontent, "File", file.FileName);
+
+           
+            content.Add(filecontent, "File", newFileName);
             content.Add(new StringContent("Forecast"), "Proyecto");
 
             var response = await _httpClient.PostAsync("https://storage.igrtecapi.site/api/storage/upload", content);
