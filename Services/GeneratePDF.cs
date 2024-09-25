@@ -3,6 +3,7 @@ using iText.Layout;
 using iText.Layout.Element;
 using System.IO;
 using System.Globalization;
+using ApiForecast.Models.ReportesModels.ReportesCompras;
 
 namespace ApiForecast.Services{
 

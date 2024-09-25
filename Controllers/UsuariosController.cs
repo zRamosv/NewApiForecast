@@ -85,7 +85,7 @@ namespace ApiForecast.Controllers
                 {
                     continue;
                 }
-                if(property.Name == nameof(update.Contraseña)){
+                if(property.Name == nameof(update.Contraseña) && usuario.Contraseña != null){
                     update.Contraseña = BCrypt.Net.BCrypt.HashPassword(usuario.Contraseña);
                     continue;
                 }

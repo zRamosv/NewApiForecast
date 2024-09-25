@@ -1,3 +1,4 @@
+namespace ApiForecast.Models.ReportesModels.ReportesCompras{
 public class ReportRequest
 {
     public int Grupo { get; set; }
@@ -50,4 +51,5 @@ public class TotalInfo
     public int Cantidad { get; set; } // cantidad total
     public ImportesInfo ImportesUSD { get; set; } // total en dolares
     public ImportesInfo ImportesMN { get; set; } // total en pesos
+}
 }

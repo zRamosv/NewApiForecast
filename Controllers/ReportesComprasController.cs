@@ -1,4 +1,5 @@
 using ApiForecast.Data;
+using ApiForecast.Models.ReportesModels.ReportesCompras;
 using ApiForecast.Services;
 using ApiForescast.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
