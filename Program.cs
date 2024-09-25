@@ -19,7 +19,8 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "Por favor ingrese el token JWT con el formato: Bearer {token}",
         Name = "Authorization",
-        Type = SecuritySchemeType.OAuth2
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -31,9 +32,13 @@ builder.Services.AddSwaggerGen(c =>
                 {
                     Type = ReferenceType.SecurityScheme,
                     Id = "Bearer"
-                }
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header
             },
-            new string[] {}
+            new List<string>()
+
         }
 
 });
@@ -85,12 +90,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowAnyOriginPolicy");
+app.UseCors("AllowAnyOrigin");
 app.MapControllers();
 
-app.UseAuthentication();
+app.UseAuthentication(); // Should be before UseAuthorization
 app.UseAuthorization();
-
 
 
 

@@ -3,6 +3,7 @@ using ApiForecast.Models.DTOs;
 using ApiForecast.Models.Entities;
 using ApiForecast.Models.InsertModels;
 using ApiForecast.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,20 +12,27 @@ namespace ApiForecast.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(Roles = "Admin")]
+
     public class ClientesController : ControllerBase
     {
 
         private readonly ForecastContext _context;
+
         public ClientesController(ForecastContext context)
         {
             _context = context;
 
         }
+
+       
         [HttpGet]
         public async Task<IActionResult> GetClientes()
         {
 
+
             return Ok(await _context.Clientes.ToListAsync());
+
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCliente(int id)
@@ -63,7 +71,7 @@ namespace ApiForecast.Controllers
             }
             foreach (var property in update.GetType().GetProperties())
             {
-               
+
                 if (property.Name == nameof(update.Client_id))
                 {
                     continue;
@@ -73,7 +81,7 @@ namespace ApiForecast.Controllers
                 if (dtoProperty != null)
                 {
                     var newValue = dtoProperty.GetValue(cliente);
-                    if (newValue != null) 
+                    if (newValue != null)
                     {
                         property.SetValue(update, newValue);
                     }
