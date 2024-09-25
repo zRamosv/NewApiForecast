@@ -41,7 +41,7 @@ namespace ApiForecast.Controllers
 
         }
 
-        [HttpPost("compras")]
+        [HttpPost("producto")]
         public async Task<IActionResult> GeneratePurchaseReport([FromBody] ReportRequest request)
         {
             // Validate request
