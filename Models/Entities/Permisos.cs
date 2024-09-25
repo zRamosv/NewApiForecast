@@ -10,6 +10,7 @@ namespace ApiForecast.Models.Entities{
         public int User_id {get;set;}
         public Usuarios User {get;set;}
         public string Modulo {get;set;}
+        public string Aplicacion {get;set;}
         public string Nivel_acceso {get;set;}
     }
 }

@@ -2,6 +2,7 @@ using ApiForecast.Data;
 using ApiForecast.Models.DTOs;
 using ApiForecast.Models.Entities;
 using ApiForecast.Models.InsertModels;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,10 +25,10 @@ namespace ApiForecast.Controllers
             return Ok(await _context.Permisos.Include(x => x.User).ToListAsync());
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetPermiso(int id)
+        [HttpGet("{idUser}")]
+        public async Task<IActionResult> GetPermiso(int idUser)
         {
-            var permiso = await _context.Permisos.Include(x => x.User).FirstOrDefaultAsync(x => x.Permiso_id == id);
+            var permiso = await _context.Permisos.Include(x => x.User).FirstOrDefaultAsync(x => x.User_id == idUser);
             if (permiso == null)
             {
                 return NotFound();
@@ -37,17 +38,25 @@ namespace ApiForecast.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(PermisosInsert permiso)
         {
-            var insert = new Permisos
-            {
-                User_id = permiso.User_id,
-                Modulo = permiso.Modulo,
-                Nivel_acceso = permiso.Nivel_acceso
-            };
-            _context.Permisos.Add(insert);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetPermiso), new { id = insert.Permiso_id }, insert);
-        }
+            var permisosUser = await _context.Permisos.Where(x => x.User_id == permiso.User_id).ToListAsync();
+            if (permisosUser != null){
+                _context.Permisos.RemoveRange(permisosUser);
+                await _context.SaveChangesAsync();
+            }
+            foreach (var item in permiso.Permisos){
+                var insert = new Permisos{
+                     User_id = permiso.User_id,
+                     Modulo = item.Modulo,
+                     Aplicacion = item.Aplicacion,
+                     Nivel_acceso = item.Nivel_acceso
 
+                };
+                await _context.Permisos.AddAsync(insert);
+            }
+            await _context.SaveChangesAsync();
+            return Ok(permiso);
+            
+        }
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, PermisosDTO permiso)
         {

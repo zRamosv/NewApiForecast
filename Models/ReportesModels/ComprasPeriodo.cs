@@ -11,39 +11,39 @@ public class ReportDTO
 {
     public DateTime FechaInicio { get; set; }
     public DateTime FechaFin { get; set; }
-    public List<CompraReportDTO> Compras { get; set; } = new List<CompraReportDTO>(); // List of purchases within the report
-    public TotalDTO Total { get; set; } // Totals for the report
+    public List<CompraReportDTO> Compras { get; set; } = new List<CompraReportDTO>(); // Lista de compras con el reporte
+    public TotalDTO Total { get; set; } // Total
 }
 
 public class CompraReportDTO
 {
-    public DateTime Recepcion { get; set; } // Purchase date
-    public int Proveedor { get; set; } // Provider ID
-    public string Estado { get; set; } // Status (e.g., REGISTRADA)
-    public ImportesDTO ImportesUSD { get; set; } // Calculated totals for USD purchases
-    public ImportesDTO ImportesMN { get; set; } // Calculated totals for MXN purchases
-    public List<DetalleDTO> Detalles { get; set; } // List of purchase details (empty if not requested)
+    public DateTime Recepcion { get; set; } // Fechad e compra
+    public int Proveedor { get; set; } // Id prov
+    public string Estado { get; set; } // Estado (e.g., REGISTRADA)
+    public ImportesDTO ImportesUSD { get; set; } // Total de Compras USD
+    public ImportesDTO ImportesMN { get; set; } // Totales de Compras MXN
+    public List<DetalleDTO> Detalles { get; set; } // Lista de detalles de la compra
 }
 
 public class ImportesDTO
 {
-    public int Piezas { get; set; } // Number of units/items
-    public double Importe { get; set; } // Total value before tax (IVA)
-    public double IVA { get; set; } // Tax amount (IVA)
-    public double Total { get; set; } // Total value including tax (IVA)
+    public int Piezas { get; set; } 
+    public double Importe { get; set; } // Total antes de IVA
+    public double IVA { get; set; } // IVA
+    public double Total { get; set; } // TOtal con iva
 }
 
 public class DetalleDTO
 {
-    public string Clave { get; set; } // Product key
-    public int Producto { get; set; } // Product ID
-    public ImportesDTO ImportesUSD { get; set; } // USD totals for this product
-    public ImportesDTO ImportesMN { get; set; } // MXN totals for this product
+    public string Clave { get; set; } // clave producto
+    public int Producto { get; set; } // id producto
+    public ImportesDTO ImportesUSD { get; set; } // Total USD de este producto
+    public ImportesDTO ImportesMN { get; set; } // Total MXN de este producto
 }
 
 public class TotalDTO
 {
-    public int Piezas { get; set; } // Total number of units/items for all purchases
-    public ImportesDTO ImportesUSD { get; set; } // Total USD amounts
-    public ImportesDTO ImportesMN { get; set; } // Total MXN amounts
+    public int Piezas { get; set; } // Numero total de todas las piezas
+    public ImportesDTO ImportesUSD { get; set; } // Total USD de todas las piezas
+    public ImportesDTO ImportesMN { get; set; } // Total MXN de todas las piezas 
 }

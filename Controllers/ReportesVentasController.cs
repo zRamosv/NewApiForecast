@@ -1,4 +1,5 @@
 using ApiForecast.Data;
+using ApiForecast.Services;
 using ApiForescast.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,27 +13,34 @@ namespace ApiForecast.Controllers
     public class ReportesVentasController : ControllerBase
     {
         private readonly ForecastContext _context;
+      
 
-        public ReportesVentasController(ForecastContext context)
+        public ReportesVentasController(ForecastContext context, GeneratePDF generatePDF)
         {
             _context = context;
+            
         }
 
 
         [HttpPost("GenerateReport")]
         public async Task<IActionResult> GenerateReport([FromBody] ReportInputModel input)
         {
-           
+
             var compras = await _context.Compras
-                .Include(c => c.Product) 
+                .Include(c => c.Product)
                 .Where(c => c.Fecha >= DateOnly.FromDateTime(input.FechaInicio) && c.Fecha <= DateOnly.FromDateTime(input.FechaFin))
                 .ToListAsync();
 
-           
+
             var report = CreateReport(compras, input.Detalle);
+            report.FechaInicio = input.FechaInicio;
+            report.FechaFin = input.FechaFin;
 
             return Ok(report);
+
+
         }
+    
 
         private ReportDTO CreateReport(List<Compras> compras, bool includeDetails)
         {
@@ -40,13 +48,14 @@ namespace ApiForecast.Controllers
             var totalUSD = new ImportesDTO();
             var totalMN = new ImportesDTO();
 
+
             foreach (var compra in compras)
             {
                 var compraReport = new CompraReportDTO
                 {
                     Recepcion = compra.Fecha.ToDateTime(new TimeOnly(0)),
                     Proveedor = compra.Provider_id,
-                    Estado = "REGISTRADA", 
+                    Estado = "REGISTRADA",
                     ImportesUSD = new ImportesDTO(),
                     ImportesMN = new ImportesDTO(),
                     Detalles = includeDetails ? new List<DetalleDTO>() : null
@@ -96,7 +105,7 @@ namespace ApiForecast.Controllers
                 reportDTO.Compras.Add(compraReport);
             }
 
-          
+
             reportDTO.Total = new TotalDTO
             {
                 Piezas = totalUSD.Piezas + totalMN.Piezas,
@@ -106,5 +115,7 @@ namespace ApiForecast.Controllers
 
             return reportDTO;
         }
+
+
     }
 }
