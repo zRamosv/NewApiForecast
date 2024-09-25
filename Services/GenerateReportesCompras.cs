@@ -1,15 +1,20 @@
+using ApiForecast.Data;
 using ApiForecast.Models.ReportesModels.ReportesCompras;
 using ApiForescast.Models.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiForecast.Services
 {
     public class GenerateReportesCompras
     {
-
-
+        private readonly ForecastContext _context;
+        public GenerateReportesCompras(ForecastContext context)
+{
+            _context = context;
+}
         public ReportResponse CreateReportVentasProductos(List<Compras> compras, ReportRequest request)
         {
-            // Respuesta
+       
             var response = new ReportResponse
             {
                 FechaInicio = request.FechaInicio,
@@ -23,7 +28,7 @@ namespace ApiForecast.Services
                 Total = new TotalInfo()
             };
 
-            // Calculate totals
+            // Inicializamos
             int totalCantidad = 0;
             decimal totalSubtotalUSD = 0;
             decimal totalIVAUSD = 0;
@@ -55,7 +60,7 @@ namespace ApiForecast.Services
                     Detalles = request.Detalle ? new DetallesInfo { Proveedor = compra.Provider_id } : null
                 };
 
-                // Update totals
+                // Sumamos totales
                 totalCantidad += compra.Cantidad;
                 if (compra.MonedaUSD)
                 {
@@ -73,7 +78,7 @@ namespace ApiForecast.Services
                 response.Compras.Add(compraInfo);
             }
 
-            // Set total summary
+            // Resumen total
             response.Total = new TotalInfo
             {
                 Cantidad = totalCantidad,
@@ -167,6 +172,147 @@ namespace ApiForecast.Services
             };
 
             return reportDTO;
+        }
+
+        public async Task<ReportByProviderResponse> CreateReportComprasByProvider(List<Compras> compras, ReportByProviderRequest request)
+        {
+            // Prepare the response
+            var response = new ReportByProviderResponse
+            {
+                FechaInicio = request.FechaInicio,
+                FechaFin = request.FechaFin,
+                Proveedor = new ProveedorInfoByProvider
+                {
+                   //placeholder
+                },
+                Compras = new List<CompraPorDiaByProvider>(),
+                Total = new TotalInfoByProvider()
+            };
+
+            // Agrupar por fecha
+            var groupedCompras = compras.GroupBy(c => c.Fecha);
+
+            // Inicializamos
+            int totalPiezas = 0;
+            decimal totalSubtotalUSD = 0;
+            decimal totalIVAUSD = 0;
+            decimal totalTotalUSD = 0;
+            decimal totalSubtotalMN = 0;
+            decimal totalIVAMN = 0;
+            decimal totalTotalMN = 0;
+
+            foreach (var grupo in groupedCompras)
+            {
+                int dailyPiezas = 0;
+                decimal dailySubtotalUSD = 0;
+                decimal dailyIVAUSD = 0;
+                decimal dailyTotalUSD = 0;
+                decimal dailySubtotalMN = 0;
+                decimal dailyIVAMN = 0;
+                decimal dailyTotalMN = 0;
+
+                var compraPorDia = new CompraPorDiaByProvider
+                {
+                    Fecha = grupo.Key.ToDateTime(new TimeOnly(0)),
+                    Detalles = new List<DetalleCompraByProvider>()
+                };
+
+                foreach (var compra in grupo)
+                {
+                    dailyPiezas += compra.Cantidad;
+                    var producto = await _context.Productos.FirstOrDefaultAsync(p => p.Product_Id == compra.Product_id);
+
+                    var detallesInfo = new DetalleCompraByProvider
+                    {
+                        Producto = new ProductoInfo
+                        {
+                            Id = compra.Product_id,
+                            Clave = producto.Nombre
+                        },
+                        Piezas = compra.Cantidad,
+                        ImportesUSD = new ImportesInfo(),
+                        ImportesMN = new ImportesInfo()
+                    };
+
+                    if (compra.MonedaUSD)
+                    {
+                        detallesInfo.ImportesUSD = new ImportesInfo
+                        {
+                            Cantidad = compra.Cantidad,
+                            Subtotal = compra.Precio * compra.Cantidad,
+                            IVA = compra.Precio * compra.Cantidad * 0.16M,
+                            Total = compra.Precio * compra.Cantidad
+                        };
+
+                        dailySubtotalUSD += detallesInfo.ImportesUSD.Subtotal;
+                        dailyIVAUSD += detallesInfo.ImportesUSD.IVA;
+                        dailyTotalUSD += detallesInfo.ImportesUSD.Total;
+                    }
+                    else
+                    {
+                        detallesInfo.ImportesMN = new ImportesInfo
+                        {
+                            Cantidad = compra.Cantidad,
+                            Subtotal = compra.Precio * compra.Cantidad,
+                            IVA = compra.Precio * compra.Cantidad * 0.16M,
+                            Total = compra.Precio * compra.Cantidad
+                        };
+
+                        dailySubtotalMN += detallesInfo.ImportesMN.Subtotal;
+                        dailyIVAMN += detallesInfo.ImportesMN.IVA;
+                        dailyTotalMN += detallesInfo.ImportesMN.Total;
+                    }
+
+                    if (request.Detalle)
+                    {
+                        compraPorDia.Detalles.Add(detallesInfo);
+                    }
+                }
+
+                compraPorDia.Piezas = dailyPiezas;
+                compraPorDia.ImportesUSD = new ImportesInfo
+                {
+                    Subtotal = dailySubtotalUSD,
+                    IVA = dailyIVAUSD,
+                    Total = dailyTotalUSD
+                };
+                compraPorDia.ImportesMN = new ImportesInfo
+                {
+                    Subtotal = dailySubtotalMN,
+                    IVA = dailyIVAMN,
+                    Total = dailyTotalMN
+                };
+
+                totalPiezas += dailyPiezas;
+                totalSubtotalUSD += dailySubtotalUSD;
+                totalIVAUSD += dailyIVAUSD;
+                totalTotalUSD += dailyTotalUSD;
+                totalSubtotalMN += dailySubtotalMN;
+                totalIVAMN += dailyIVAMN;
+                totalTotalMN += dailyTotalMN;
+
+                response.Compras.Add(compraPorDia);
+            }
+
+            // Total
+            response.Total = new TotalInfoByProvider
+            {
+                Piezas = totalPiezas,
+                ImportesUSD = new ImportesInfoByProvider
+                {
+                    Subtotal = totalSubtotalUSD,
+                    IVA = totalIVAUSD,
+                    Total = totalTotalUSD
+                },
+                ImportesMN = new ImportesInfoByProvider
+                {
+                    Subtotal = totalSubtotalMN,
+                    IVA = totalIVAMN,
+                    Total = totalTotalMN
+                }
+            };
+
+            return response;
         }
     }
 }

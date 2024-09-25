@@ -1,6 +1,7 @@
 using ApiForecast.Data;
 using ApiForecast.Models.DTOs;
 using ApiForecast.Models.Entities;
+using ApiForecast.Models.GetModels;
 using ApiForecast.Models.InsertModels;
 using ApiForecast.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -24,13 +25,56 @@ namespace ApiForecast.Controllers
         public async Task<IActionResult> GetUsuarios()
         {
 
-            return Ok(await _context.Usuarios.ToListAsync());
+            return Ok(await _context.Usuarios.Include(x => x.UserRoles).ThenInclude(x => x.Role).Select(x => new GetUserRoles
+            {
+                User_Id = x.User_Id,
+                Clave = x.Clave,
+                Nombre = x.Nombre,
+                Foto_User = x.Foto_User,
+                Telefono_Usuario = x.Telefono_Usuario,
+                Contraseña = x.Contraseña,
+                Estatus = x.Estatus,
+                Vendedor_Modo = x.Vendedor_Modo,
+                VendedorComision = x.VendedorComision,
+                VendedorClave = x.VendedorClave,
+                UserRoles = x.UserRoles.Select(y => new UserRolesDTO
+                {
+                    Id = y.Id,
+                    User_Id = y.User_Id,
+                    Role_Id = y.Role_Id,
+                    Role = y.Role,
+                    Sucursal_id = y.Sucursal_id,
+                    Sucursal = y.Sucursal
+                }).ToList()
+            }).ToListAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUsuario(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var usuario = await _context.Usuarios.Include(x => x.UserRoles).ThenInclude(x => x.Role).Select(x => new GetUserRoles
+            {
+                User_Id = x.User_Id,
+                Clave = x.Clave,
+                Nombre = x.Nombre,
+                Foto_User = x.Foto_User,
+                Telefono_Usuario = x.Telefono_Usuario,
+                Contraseña = x.Contraseña,
+                Estatus = x.Estatus,
+                Vendedor_Modo = x.Vendedor_Modo,
+                VendedorComision = x.VendedorComision,
+                VendedorClave = x.VendedorClave,
+                UserRoles = x.UserRoles.Select(y => new UserRolesDTO
+                {
+                    Id = y.Id,
+                    User_Id = y.User_Id,
+                    Role_Id = y.Role_Id,
+                    Role = y.Role,
+                    Sucursal_id = y.Sucursal_id,
+                    Sucursal = y.Sucursal
+                }).ToList()
+            }).FirstOrDefaultAsync(x => x.User_Id == id);
+
             if (usuario == null)
             {
                 return NotFound();
@@ -59,7 +103,7 @@ namespace ApiForecast.Controllers
             return CreatedAtAction(nameof(GetUsuario), new { id = insert.User_Id }, insert);
         }
         [HttpPost("SubirFoto/{id}")]
-        public async Task<IActionResult> SubirFoto(int id,  IFormFile file)
+        public async Task<IActionResult> SubirFoto(int id, IFormFile file)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
@@ -70,6 +114,39 @@ namespace ApiForecast.Controllers
             await _context.SaveChangesAsync();
             return Ok(usuario);
         }
+        [HttpPost("Roles")]
+        public async Task<IActionResult> PostRoles([FromBody] InsertUserRoleBatch roles)
+        {
+            var userRole = await _context.User_Roles.Where(x => x.User_Id == roles.IdUsuario).ToListAsync();
+            if (userRole != null)
+            {
+                _context.User_Roles.RemoveRange(userRole);
+                await _context.SaveChangesAsync();
+            }
+            foreach (var item in roles.Roles)
+            {
+                var insert = new UserRoles
+                {
+                    User_Id = roles.IdUsuario,
+                    Role_Id = item.RolId,
+                    Sucursal_id = item.SucursalId
+                };
+                await _context.User_Roles.AddAsync(insert);
+            }
+            await _context.SaveChangesAsync();
+            return Ok(roles);
+        }
+        [HttpGet("Roles/{userId}")]
+        public async Task<IActionResult> GetRoles(int userId)
+        {
+            var roles = await _context.User_Roles.Where(x => x.User_Id == userId).ToListAsync();
+            if (roles == null)
+            {
+                return NotFound();
+            }
+            return Ok(roles);
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUsuario(int id, [FromBody] UsuarioDTO usuario)
         {
@@ -85,7 +162,8 @@ namespace ApiForecast.Controllers
                 {
                     continue;
                 }
-                if(property.Name == nameof(update.Contraseña) && usuario.Contraseña != null){
+                if (property.Name == nameof(update.Contraseña) && usuario.Contraseña != null)
+                {
                     update.Contraseña = BCrypt.Net.BCrypt.HashPassword(usuario.Contraseña);
                     continue;
                 }

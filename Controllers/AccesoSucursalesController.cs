@@ -25,10 +25,10 @@ namespace ApiForecast.Controllers
 
             return Ok(await _context.AccesoSucursales.Include(x => x.Usuario).Include(x => x.Sucursal).ToListAsync());
         }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetAccesoSucursal(int id)
+        [HttpGet("{idUser}")]
+        public async Task<IActionResult> GetAccesoSucursal(int idUser)
         {
-            var accesoSucursal = await _context.AccesoSucursales.Include(x => x.Usuario).Include(x => x.Sucursal).FirstOrDefaultAsync(x => x.User_id == id);
+            var accesoSucursal = await _context.AccesoSucursales.Include(x => x.Usuario).Include(x => x.Sucursal).Where(x => x.User_id == idUser).ToListAsync();
             if (accesoSucursal == null)
             {
                 return NotFound();
@@ -39,17 +39,31 @@ namespace ApiForecast.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAccesoSucursal(AccesoSucursalesInsert accesoSucursal)
         {
-            var insert = new AccessoSucursales
+            var usuario = await _context.Usuarios.FirstOrDefaultAsync(x => x.User_Id == accesoSucursal.User_id);
+            if (usuario == null)
             {
-                User_id = accesoSucursal.User_id,
-                Nombre_user = accesoSucursal.Nombre_user,
-                Sucursal_id = accesoSucursal.Sucursal_id
-            };
+                return NotFound();
+            }
+            var accesoSucursales = await _context.AccesoSucursales.Where(x => x.User_id == accesoSucursal.User_id).ToListAsync();
+            if (accesoSucursales.Count > 0){
+                _context.AccesoSucursales.RemoveRange(accesoSucursales);
+                await _context.SaveChangesAsync();
+            }
+            foreach (var item in accesoSucursal.SucursalesIds){
+                var insert = new AccessoSucursales
+                {
+                    User_id = accesoSucursal.User_id,
+                    Sucursal_id = item,
+                    Nombre_user = usuario.Nombre,
+                    
+                };
+                await _context.AccesoSucursales.AddAsync(insert);
+            }
 
-            _context.AccesoSucursales.Add(insert);
+            
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetAccesoSucursal), new { id = insert.User_id }, insert);
+            return CreatedAtAction(nameof(GetAccesoSucursal), new { id = accesoSucursal.User_id }, accesoSucursal);
         }
 
         [HttpPut("{id}")]

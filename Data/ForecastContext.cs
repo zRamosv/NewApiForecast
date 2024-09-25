@@ -32,6 +32,8 @@ namespace ApiForecast.Data{
 
         override protected void OnModelCreating(ModelBuilder modelBuilder){
 
+        
+
             //Relacion Acceso Sucursales
             modelBuilder.Entity<AccessoSucursales>()
                 .HasOne(x => x.Usuario)

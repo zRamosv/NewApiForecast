@@ -46,17 +46,19 @@ namespace ApiForecast.Controllers
         [HttpPost("producto")]
         public async Task<IActionResult> GeneratePurchaseReport([FromBody] ReportRequest request)
         {
-            // Validate request
+
             if (request.FechaInicio > request.FechaFin)
-                return BadRequest("FechaInicio must be earlier than FechaFin.");
+                return BadRequest("Fecha inicio debe ser anterior a la fecha fin");
             var producto = await _context.Productos.FirstOrDefaultAsync(p => p.Product_Id == request.Producto);
-            // Fetch purchases based on the request criteria
+            if (producto == null)
+                return NotFound("No se encontro el producto");
+            //  Obtenemos las compras dependediendo de criterios
             var comprasQuery = _context.Compras
                 .Where(c => c.Product_id == request.Producto
                              && c.Fecha >= DateOnly.FromDateTime(request.FechaInicio)
                              && c.Fecha <= DateOnly.FromDateTime(request.FechaFin));
 
-            // Filter by Moneda
+            // Filtros de Moneda
             if (request.Moneda == "USD")
             {
                 comprasQuery = comprasQuery.Where(c => c.MonedaUSD); // Solo compras en Dolares
@@ -83,18 +85,23 @@ namespace ApiForecast.Controllers
         public async Task<IActionResult> GenerateSupplierReport([FromBody] ReportByProviderRequest request)
         {
 
-            // Validate request
+
             if (request.FechaInicio > request.FechaFin)
             {
-                return BadRequest("FechaInicio must be earlier than FechaFin.");
+                return BadRequest("Fecha inicio debe ser anterior a la fecha fin");
             }
-            // Fetch purchases based on the request criteria
+            var proveedor = await _context.Proveedores.FirstOrDefaultAsync(p => p.Provider_id == request.IdProveedor);
+            if (proveedor == null)
+            {
+                return NotFound("No se encontro el proveedor");
+            }
+            // Obtenemos las compras dependediendo de criterios
             var comprasQuery = _context.Compras
-                .Where(c => c.Provider_id == request.Proveedor
+                .Where(c => c.Provider_id == request.IdProveedor
                              && c.Fecha >= DateOnly.FromDateTime(request.FechaInicio)
                              && c.Fecha <= DateOnly.FromDateTime(request.FechaFin));
 
-            // Filter by Moneda
+            // Filtros de moneda
             if (request.Moneda == "USD")
             {
                 comprasQuery = comprasQuery.Where(c => c.MonedaUSD); // Solo compras en Dolares
@@ -107,7 +114,13 @@ namespace ApiForecast.Controllers
             {
                 comprasQuery = comprasQuery.Where(c => c.MonedaUSD || !c.MonedaUSD);
             }
-            return Ok();
+            var compras = await comprasQuery.ToListAsync();
+            var report = await _generateReportesCompras.CreateReportComprasByProvider(compras, request);
+            report.Proveedor.Id = request.IdProveedor;
+            report.Proveedor.Nombre = proveedor.Nombre;
+            
+
+            return Ok(report);
         }
 
     }

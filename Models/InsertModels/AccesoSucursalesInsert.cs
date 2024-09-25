@@ -6,9 +6,8 @@ namespace ApiForecast.Models.InsertModels
     {
         [Required]
         public int User_id { get; set; }
-        [Required]
-        public string Nombre_user { get; set; }
-        [Required]
-        public int Sucursal_id { get; set; }
+        public List<int> SucursalesIds { get; set; }
+
+        
     }
 }
