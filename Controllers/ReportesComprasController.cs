@@ -9,7 +9,7 @@ namespace ApiForecast.Controllers
 
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ReporteComprasController : ControllerBase
     {
         private readonly ForecastContext _context;
