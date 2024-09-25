@@ -28,7 +28,7 @@ namespace ApiForecast.Controllers
         [HttpGet("{idUser}")]
         public async Task<IActionResult> GetPermiso(int idUser)
         {
-            var permiso = await _context.Permisos.Include(x => x.User).FirstOrDefaultAsync(x => x.User_id == idUser);
+            var permiso = await _context.Permisos.Include(x => x.User).Where(x => x.User_id == idUser).ToListAsync();
             if (permiso == null)
             {
                 return NotFound();
