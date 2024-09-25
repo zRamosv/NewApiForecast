@@ -27,7 +27,7 @@ namespace ApiForecast.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetGrupo(int id)
         {
-            var grupo = await _context.Grupos.FindAsync(id);
+            var grupo = await _context.Grupos.FirstOrDefaultAsync(x => x.Group_id == id);
             if (grupo == null)
             {
                 return NotFound();

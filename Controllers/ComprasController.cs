@@ -40,7 +40,7 @@ namespace ApiForecast.Controllers
             var insert = new Compras
             {
                 Product_id = compra.Product_id,
-                Fecha = compra.Fecha,
+                Fecha = DateOnly.FromDateTime(compra.Fecha),
                 Cantidad = compra.Cantidad,
                 Precio = compra.Precio,
                 Provider_id = compra.Provider_id,

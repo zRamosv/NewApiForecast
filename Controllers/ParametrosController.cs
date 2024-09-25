@@ -10,10 +10,10 @@ namespace ApiForecast.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-    public class GrupoController : ControllerBase
+    public class ParametrosController : ControllerBase
     {
         private readonly ForecastContext _context;
-        public GrupoController(ForecastContext context)
+        public ParametrosController(ForecastContext context)
         {
             _context = context;
         }
@@ -31,7 +31,7 @@ namespace ApiForecast.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(ParametrosInsert parametro)
         {
-            var insert = new Parametros
+            var insert = new Models.Entities.Parametros
             {
                 Sucursal_id = parametro.Sucursal_id,
                 FirmaSupervisor = parametro.FirmaSupervisor,

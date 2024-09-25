@@ -77,5 +77,17 @@ namespace ApiForecast.Controllers
             await _context.SaveChangesAsync(); 
             return Ok(update);
         }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var delete = await _context.Productos.FindAsync(id);
+            if (delete == null)
+            {
+                return NotFound();
+            }
+            _context.Productos.Remove(delete);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }

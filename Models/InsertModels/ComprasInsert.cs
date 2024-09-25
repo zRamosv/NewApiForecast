@@ -8,8 +8,8 @@ namespace ApiForecast.Models.InsertModels
         [Required]
         public int Product_id { get; set; }
         [Required]
-        [Column(TypeName = "date")]
-        public DateOnly Fecha { get; set; }
+        
+        public DateTime Fecha { get; set; }
         [Required]
         public int Cantidad { get; set; }
         [Required]
@@ -18,7 +18,7 @@ namespace ApiForecast.Models.InsertModels
         [Required]
         public int Provider_id { get; set; }
         [Required]
-        
+            
         public bool MoendaUSD { get; set; }
     }
 }

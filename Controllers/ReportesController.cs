@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ApiForecast.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ReportesController : ControllerBase
     {
         private readonly ForecastContext _context;
@@ -32,8 +32,8 @@ namespace ApiForecast.Controllers
             var insert = new Reportes
             {
                 Tipo = reporte.Tipo,
-                Fecha_inicio = reporte.Fecha_inicio,
-                Fecha_fin = reporte.Fecha_fin,
+                Fecha_inicio = DateOnly.FromDateTime(reporte.Fecha_inicio),
+                Fecha_fin = DateOnly.FromDateTime(reporte.Fecha_fin),
                 Detalles = reporte.Detalles
 
             };

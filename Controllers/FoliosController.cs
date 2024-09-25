@@ -9,7 +9,7 @@ namespace ApiForecast.Controllers
 {
 
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class FoliosController : ControllerBase
     {
         private readonly ForecastContext _context;
@@ -68,6 +68,18 @@ namespace ApiForecast.Controllers
             }
             await _context.SaveChangesAsync();
             return Ok(update);
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteFolios(int id)
+        {
+            var delete = await _context.Folios.FindAsync(id);
+            if (delete == null)
+            {
+                return NotFound();
+            }
+            _context.Folios.Remove(delete);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
