@@ -9,12 +9,12 @@ namespace ApiForecast.Services
     {
         private readonly ForecastContext _context;
         public GenerateReportesCompras(ForecastContext context)
-{
+        {
             _context = context;
-}
+        }
         public ReportResponse CreateReportVentasProductos(List<Compras> compras, ReportRequest request)
         {
-       
+
             var response = new ReportResponse
             {
                 FechaInicio = request.FechaInicio,
@@ -183,7 +183,7 @@ namespace ApiForecast.Services
                 FechaFin = request.FechaFin,
                 Proveedor = new ProveedorInfoByProvider
                 {
-                   //placeholder
+                    //placeholder
                 },
                 Compras = new List<CompraPorDiaByProvider>(),
                 Total = new TotalInfoByProvider()

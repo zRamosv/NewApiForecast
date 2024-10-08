@@ -22,10 +22,10 @@ namespace ApiForecast.Services
                 return null;
             }
 
-          
+
             var uid = Guid.NewGuid().ToString();
 
-      
+
             var originalFileName = file.FileName;
             var extension = Path.GetExtension(originalFileName);
             var newFileName = $"{Path.GetFileNameWithoutExtension(originalFileName)}_{uid}{extension}";
@@ -35,7 +35,7 @@ namespace ApiForecast.Services
             using var filecontent = new StreamContent(filestream);
             filecontent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 
-           
+
             content.Add(filecontent, "File", newFileName);
             content.Add(new StringContent("Forecast"), "Proyecto");
 
