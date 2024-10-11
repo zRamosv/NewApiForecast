@@ -22,6 +22,7 @@ namespace ApiForecast.Models.ReportesModels.ReportesCompras
         public DateTime Recepcion { get; set; } // Fechad e compra
         public int Proveedor { get; set; } // Id prov
         public string Estado { get; set; } // Estado (e.g., REGISTRADA)
+        public int Piezas { get; set; }
         public ImportesDTO ImportesUSD { get; set; } // Total de Compras USD
         public ImportesDTO ImportesMN { get; set; } // Totales de Compras MXN
         public List<DetalleDTO> Detalles { get; set; } // Lista de detalles de la compra
@@ -29,7 +30,7 @@ namespace ApiForecast.Models.ReportesModels.ReportesCompras
 
     public class ImportesDTO
     {
-        public int Piezas { get; set; }
+        
         public double Importe { get; set; } // Total antes de IVA
         public double IVA { get; set; } // IVA
         public double Total { get; set; } // TOtal con iva
@@ -39,6 +40,7 @@ namespace ApiForecast.Models.ReportesModels.ReportesCompras
     {
         public string Clave { get; set; } // clave producto
         public int Producto { get; set; } // id producto
+         public int Piezas { get; set; }
         public ImportesDTO ImportesUSD { get; set; } // Total USD de este producto
         public ImportesDTO ImportesMN { get; set; } // Total MXN de este producto
     }

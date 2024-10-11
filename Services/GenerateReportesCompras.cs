@@ -45,17 +45,17 @@ namespace ApiForecast.Services
                     Cantidad = compra.Cantidad,
                     ImportesUSD = new ImportesInfo
                     {
-                        Cantidad = compra.Cantidad,
+
                         Subtotal = compra.Precio * compra.Cantidad, //Calculamos subtotal
                         IVA = compra.Precio * compra.Cantidad * 0.16m, // IVA
-                        Total = compra.Precio * compra.Cantidad // Total 
+                        Total = (compra.Precio * compra.Cantidad) + (compra.Precio * compra.Cantidad * 0.16m) // Total 
                     },
                     ImportesMN = new ImportesInfo
                     {
-                        Cantidad = compra.Cantidad,
+
                         Subtotal = compra.Precio * compra.Cantidad,
                         IVA = compra.Precio * compra.Cantidad * 0.16m,
-                        Total = compra.Precio * compra.Cantidad
+                        Total = (compra.Precio * compra.Cantidad) + (compra.Precio * compra.Cantidad * 0.16m)
                     },
                     Detalles = request.Detalle ? new DetallesInfo { Proveedor = compra.Provider_id } : null
                 };
@@ -105,7 +105,7 @@ namespace ApiForecast.Services
             var reportDTO = new ReportDTO();
             var totalUSD = new ImportesDTO();
             var totalMN = new ImportesDTO();
-
+            int totalPiezas = 0;
 
             foreach (var compra in compras)
             {
@@ -114,6 +114,7 @@ namespace ApiForecast.Services
                     Recepcion = compra.Fecha.ToDateTime(new TimeOnly(0)),
                     Proveedor = compra.Provider_id,
                     Estado = "REGISTRADA",
+                    Piezas = compra.Cantidad,//////
                     ImportesUSD = new ImportesDTO(),
                     ImportesMN = new ImportesDTO(),
                     Detalles = includeDetails ? new List<DetalleDTO>() : null
@@ -123,12 +124,12 @@ namespace ApiForecast.Services
                 {
                     compraReport.ImportesUSD = new ImportesDTO
                     {
-                        Piezas = compra.Cantidad,
+
                         Importe = (double)compra.Precio * compra.Cantidad,
                         IVA = (double)(compra.Precio * compra.Cantidad * 0.16M), // 16% IVA
                         Total = (double)(compra.Precio * compra.Cantidad * 1.16M)
                     };
-                    totalUSD.Piezas += compra.Cantidad;
+
                     totalUSD.Importe += compraReport.ImportesUSD.Importe;
                     totalUSD.IVA += compraReport.ImportesUSD.IVA;
                     totalUSD.Total += compraReport.ImportesUSD.Total;
@@ -137,12 +138,12 @@ namespace ApiForecast.Services
                 {
                     compraReport.ImportesMN = new ImportesDTO
                     {
-                        Piezas = compra.Cantidad,
+
                         Importe = (double)compra.Precio * compra.Cantidad,
                         IVA = (double)(compra.Precio * compra.Cantidad * 0.16M),
                         Total = (double)(compra.Precio * compra.Cantidad * 1.16M)
                     };
-                    totalMN.Piezas += compra.Cantidad;
+
                     totalMN.Importe += compraReport.ImportesMN.Importe;
                     totalMN.IVA += compraReport.ImportesMN.IVA;
                     totalMN.Total += compraReport.ImportesMN.Total;
@@ -154,6 +155,7 @@ namespace ApiForecast.Services
                     {
                         Clave = compra.Product.Clave,
                         Producto = compra.Product_id,
+                        Piezas = compra.Cantidad,//////
                         ImportesUSD = compra.MonedaUSD ? compraReport.ImportesUSD : new ImportesDTO(),
                         ImportesMN = !compra.MonedaUSD ? compraReport.ImportesMN : new ImportesDTO()
                     };
@@ -161,12 +163,13 @@ namespace ApiForecast.Services
                 }
 
                 reportDTO.Compras.Add(compraReport);
+                totalPiezas += compra.Cantidad;
             }
 
 
             reportDTO.Total = new TotalDTO
             {
-                Piezas = totalUSD.Piezas + totalMN.Piezas,
+                Piezas = totalPiezas,
                 ImportesUSD = totalUSD,
                 ImportesMN = totalMN
             };
@@ -238,10 +241,10 @@ namespace ApiForecast.Services
                     {
                         detallesInfo.ImportesUSD = new ImportesInfo
                         {
-                            Cantidad = compra.Cantidad,
+
                             Subtotal = compra.Precio * compra.Cantidad,
                             IVA = compra.Precio * compra.Cantidad * 0.16M,
-                            Total = compra.Precio * compra.Cantidad
+                            Total = (compra.Precio * compra.Cantidad) + (compra.Precio * compra.Cantidad * 0.16M)
                         };
 
                         dailySubtotalUSD += detallesInfo.ImportesUSD.Subtotal;
@@ -252,10 +255,10 @@ namespace ApiForecast.Services
                     {
                         detallesInfo.ImportesMN = new ImportesInfo
                         {
-                            Cantidad = compra.Cantidad,
+
                             Subtotal = compra.Precio * compra.Cantidad,
                             IVA = compra.Precio * compra.Cantidad * 0.16M,
-                            Total = compra.Precio * compra.Cantidad
+                            Total = (compra.Precio * compra.Cantidad) + (compra.Precio * compra.Cantidad * 0.16M)
                         };
 
                         dailySubtotalMN += detallesInfo.ImportesMN.Subtotal;

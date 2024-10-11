@@ -36,7 +36,7 @@ namespace ApiForecast.Models.ReportesModels.ReportesCompras
 
     public class ImportesInfo
     {
-        public int Cantidad { get; set; } // cantidad
+        
         public decimal Subtotal { get; set; } // subtotal pre impuesto
         public decimal IVA { get; set; } // impuestos
         public decimal Total { get; set; } // Total 
