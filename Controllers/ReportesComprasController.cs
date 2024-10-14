@@ -25,18 +25,18 @@ namespace ApiForecast.Controllers
 
 
         [HttpPost("periodo")]
-        public async Task<IActionResult> GenerateReport([FromBody] ReportInputModel input)
+        public async Task<IActionResult> GenerateReport([FromBody] ReportInputModel request)
         {
 
             var compras = await _context.Compras
                 .Include(c => c.Product)
-                .Where(c => c.Fecha >= DateOnly.FromDateTime(input.FechaInicio) && c.Fecha <= DateOnly.FromDateTime(input.FechaFin))
+                .Where(c => c.Fecha >= DateOnly.FromDateTime(request.FechaInicio) && c.Fecha <= DateOnly.FromDateTime(request.FechaFin))
                 .ToListAsync();
 
 
-            var report = _generateReportesCompras.CreateReportPeriodo(compras, input.Detalle);
-            report.FechaInicio = input.FechaInicio;
-            report.FechaFin = input.FechaFin;
+            var report = _generateReportesCompras.CreateReportPeriodo(compras, request.Detalle);
+            report.FechaInicio = request.FechaInicio;
+            report.FechaFin = request.FechaFin;
 
             return Ok(report);
 
@@ -118,10 +118,26 @@ namespace ApiForecast.Controllers
             var report = await _generateReportesCompras.CreateReportComprasByProvider(compras, request);
             report.Proveedor.Id = request.IdProveedor;
             report.Proveedor.Nombre = proveedor.Nombre;
-            
+
 
             return Ok(report);
         }
+        [HttpPost("costos")]
+        public async Task<IActionResult> GenerateCostsReport([FromBody] ReportByComprasCostosRequest request)
+        {
 
+            var compras = await _context.Compras
+                .Include(c => c.Product).Include(c => c.Proveedor)
+                .Where(c => c.Fecha >= DateOnly.FromDateTime(request.FechaInicio) && c.Fecha <= DateOnly.FromDateTime(request.FechaFin) && c.Product_id == request.Producto)
+                .ToListAsync();
+            if(compras.Count == 0)
+            {   
+                return NotFound("No se encontraron compras");
+            }
+            var report = _generateReportesCompras.CreateReportByComprasCostos(compras, request);
+
+            return Ok(report);
+
+        }
     }
 }

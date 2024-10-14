@@ -99,6 +99,133 @@ namespace ApiForecast.Services
             return response;
 
         }
+        //TO DO
+        public ReportByComprasCostosResponse CreateReportByComprasCostos(List<Compras> compras, ReportByComprasCostosRequest request)
+        {
+            int cantidadTotal = 0;
+            decimal subtotalUSD = 0.00m;
+            decimal subtotalMN = 0.00m;
+            decimal ivaUSD = 0.00m;
+            decimal ivaMN = 0.00m;
+            decimal totalUSD = 0.00m;
+            decimal totalMN = 0.00m;
+
+            var response = new ReportByComprasCostosResponse
+            {
+                FechaInicio = request.FechaInicio,
+                FechaFin = request.FechaFin,
+                Compras = new List<ReportByComprasCostosCompras>(), // Initialize list of purchases
+            };
+
+            foreach (var compra in compras)
+            {
+                var compraInfo = new ReportByComprasCostosCompras
+                {
+                    FechaCompra = compra.Fecha,
+                    Producto = new ProductoInfo() // Ensure Producto is initialized
+                };
+
+                // Initialize Producto fields with null checks
+                compraInfo.Producto.Id = compra.Product_id;
+                compraInfo.Producto.Clave = compra.Product?.Clave ?? string.Empty; // Handle possible null Clave with default
+
+                compraInfo.Cantidad = compra.Cantidad;
+
+                // Handle costs based on the currency
+                if (compra.MonedaUSD)
+                {
+                    compraInfo.CostosUSD = new ReportByComprasCostosCostosInfoUnit
+                    {
+                        CostoUnitario = compra.Precio,
+                        Cantidad = compra.Cantidad,
+                        Subtotal = compra.Precio * compra.Cantidad,
+                        IVA = compra.Precio * compra.Cantidad * 0.16m,
+                        Total = (compra.Precio * compra.Cantidad) + (compra.Precio * compra.Cantidad * 0.16m)
+                    };
+                    compraInfo.CostosMN = null; // No MN costs for USD transactions
+                    subtotalUSD += compraInfo.CostosUSD.Subtotal;
+                    ivaUSD += compraInfo.CostosUSD.IVA;
+                    totalUSD += compraInfo.CostosUSD.Total;
+                }
+                else
+                {
+                    compraInfo.CostosMN = new ReportByComprasCostosCostosInfoUnit
+                    {
+                        CostoUnitario = compra.Precio,
+                        Cantidad = compra.Cantidad,
+                        Subtotal = compra.Precio * compra.Cantidad,
+                        IVA = compra.Precio * compra.Cantidad * 0.16m,
+                        Total = (compra.Precio * compra.Cantidad) + (compra.Precio * compra.Cantidad * 0.16m)
+                    };
+                    compraInfo.CostosUSD = null; // No USD costs for MN transactions
+                    subtotalMN += compraInfo.CostosMN.Subtotal;
+                    ivaMN += compraInfo.CostosMN.IVA;
+                    totalMN += compraInfo.CostosMN.Total;
+                }
+
+                // If detail is requested, ensure all related objects are initialized
+                if (request.Detalle)
+                {
+                    compraInfo.Detalles = new ReportByComprasCostoTotal
+                    {
+                        Proveedor = new ProveedorInfoByProvider
+                        {
+                            Id = compra.Provider_id,
+                            Nombre = compra.Proveedor?.Nombre ?? string.Empty // Handle possible null Nombre with default
+                        },
+                        CostosUSD = compraInfo.CostosUSD != null
+                            ? new ReportByComprasCostosCostosInfoUnit
+                            {
+                                CostoUnitario = compraInfo.CostosUSD.CostoUnitario,
+                                Cantidad = compraInfo.CostosUSD.Cantidad,
+                                Subtotal = compraInfo.CostosUSD.Subtotal,
+                                IVA = compraInfo.CostosUSD.IVA,
+                                Total = compraInfo.CostosUSD.Total
+                            }
+                            : null,
+                        CostosMN = compraInfo.CostosMN != null
+                            ? new ReportByComprasCostosCostosInfoUnit
+                            {
+                                CostoUnitario = compraInfo.CostosMN.CostoUnitario,
+                                Cantidad = compraInfo.CostosMN.Cantidad,
+                                Subtotal = compraInfo.CostosMN.Subtotal,
+                                IVA = compraInfo.CostosMN.IVA,
+                                Total = compraInfo.CostosMN.Total
+                            }
+                            : null
+                    };
+                }
+                else
+                {
+                    compraInfo.Detalles = null; // No details if not requested
+                }
+
+                // Add the compraInfo to the response list
+                response.Compras.Add(compraInfo);
+                cantidadTotal += compra.Cantidad;
+            }
+
+            // Set the total summary in the response
+            response.Total = new ReportByComprasCostosTotal
+            {
+                Cantidad = cantidadTotal,
+                CostosUSD = new ReportByComprasCostosCostosInfo
+                {
+                    Subtotal = subtotalUSD,
+                    IVA = ivaUSD,
+                    Total = totalUSD
+                },
+                CostosMN = new ReportByComprasCostosCostosInfo
+                {
+                    Subtotal = subtotalMN,
+                    IVA = ivaMN,
+                    Total = totalMN
+                }
+            };
+
+            return response;
+        }
+
 
         public ReportDTO CreateReportPeriodo(List<Compras> compras, bool includeDetails)
         {
