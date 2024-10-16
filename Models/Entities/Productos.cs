@@ -20,11 +20,14 @@ namespace ApiForecast.Models.Entities
         public string Clave { get; set; }
         public string Descripcion { get; set; }
         public int Group_Id { get; set; }
+        public int Provider_id { get; set; }
         public Grupos Grupos { get; set; }
         [JsonIgnore]
 
         public ICollection<Compras> Compras { get; set; }
         [JsonIgnore]
         public ICollection<Ventas> Ventas { get; set; }
+        [JsonInclude]
+        public Proveedores Proveedores { get; set; }
     }
 }

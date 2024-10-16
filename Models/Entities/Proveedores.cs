@@ -13,5 +13,7 @@ namespace ApiForecast.Models.Entities{
         public string Contacto { get; set; }
         [JsonIgnore]
         public ICollection<Compras> Compras { get; set; }
+        [JsonIgnore]
+        public ICollection<Productos> Productos { get; set; }
     }
 }

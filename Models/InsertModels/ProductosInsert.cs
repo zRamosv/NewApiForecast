@@ -20,5 +20,7 @@ namespace ApiForecast.Models.InsertModels
         public string Descripcion { get; set; }
         [Required]
         public int Group_Id { get; set; }
+        [Required]
+        public int Provider_id { get; set; }
     }
 }

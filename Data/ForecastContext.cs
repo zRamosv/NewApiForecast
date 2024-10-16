@@ -76,7 +76,11 @@ namespace ApiForecast.Data{
             modelBuilder.Entity<Productos>()
                 .HasOne(x=>x.Grupos)
                 .WithMany(x=>x.Productos)
-                .HasForeignKey(x=>x.Group_Id);      
+                .HasForeignKey(x=>x.Group_Id);   
+            modelBuilder.Entity<Productos>()
+                .HasOne(x=>x.Proveedores)
+                .WithMany(x=>x.Productos)
+                .HasForeignKey(x=>x.Provider_id);   
             //Relacion Puntos
             modelBuilder.Entity<Puntos>()
                 .HasOne(x=>x.Sucursales)
