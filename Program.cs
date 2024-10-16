@@ -61,6 +61,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHttpClient<UploadFile>();
 builder.Services.AddScoped<GenerateReportesCompras>();
+builder.Services.AddScoped<GenerateReportesProductos>();
 
 builder.Services.AddAuthentication(options =>
 {

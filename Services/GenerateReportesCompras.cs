@@ -113,8 +113,7 @@ namespace ApiForecast.Services
             var response = new ReportByComprasCostosResponse
             {
                 FechaInicio = request.FechaInicio,
-                FechaFin = request.FechaFin,
-                Compras = new List<ReportByComprasCostosCompras>(), // Initialize list of purchases
+                FechaFin = request.FechaFin
             };
 
             foreach (var compra in compras)
@@ -122,16 +121,14 @@ namespace ApiForecast.Services
                 var compraInfo = new ReportByComprasCostosCompras
                 {
                     FechaCompra = compra.Fecha,
-                    Producto = new ProductoInfo() // Ensure Producto is initialized
+                    Producto = new ProductoInfo
+                    {
+                        Id = compra.Product_id,
+                        Clave = compra.Product.Clave
+                    },
+                    Cantidad = compra.Cantidad
                 };
 
-                // Initialize Producto fields with null checks
-                compraInfo.Producto.Id = compra.Product_id;
-                compraInfo.Producto.Clave = compra.Product?.Clave ?? string.Empty; // Handle possible null Clave with default
-
-                compraInfo.Cantidad = compra.Cantidad;
-
-                // Handle costs based on the currency
                 if (compra.MonedaUSD)
                 {
                     compraInfo.CostosUSD = new ReportByComprasCostosCostosInfoUnit
@@ -142,7 +139,7 @@ namespace ApiForecast.Services
                         IVA = compra.Precio * compra.Cantidad * 0.16m,
                         Total = (compra.Precio * compra.Cantidad) + (compra.Precio * compra.Cantidad * 0.16m)
                     };
-                    compraInfo.CostosMN = null; // No MN costs for USD transactions
+
                     subtotalUSD += compraInfo.CostosUSD.Subtotal;
                     ivaUSD += compraInfo.CostosUSD.IVA;
                     totalUSD += compraInfo.CostosUSD.Total;
@@ -157,13 +154,12 @@ namespace ApiForecast.Services
                         IVA = compra.Precio * compra.Cantidad * 0.16m,
                         Total = (compra.Precio * compra.Cantidad) + (compra.Precio * compra.Cantidad * 0.16m)
                     };
-                    compraInfo.CostosUSD = null; // No USD costs for MN transactions
+
                     subtotalMN += compraInfo.CostosMN.Subtotal;
                     ivaMN += compraInfo.CostosMN.IVA;
                     totalMN += compraInfo.CostosMN.Total;
                 }
 
-                // If detail is requested, ensure all related objects are initialized
                 if (request.Detalle)
                 {
                     compraInfo.Detalles = new ReportByComprasCostoTotal
@@ -171,41 +167,18 @@ namespace ApiForecast.Services
                         Proveedor = new ProveedorInfoByProvider
                         {
                             Id = compra.Provider_id,
-                            Nombre = compra.Proveedor?.Nombre ?? string.Empty // Handle possible null Nombre with default
+                            Nombre = compra.Proveedor.Nombre
                         },
-                        CostosUSD = compraInfo.CostosUSD != null
-                            ? new ReportByComprasCostosCostosInfoUnit
-                            {
-                                CostoUnitario = compraInfo.CostosUSD.CostoUnitario,
-                                Cantidad = compraInfo.CostosUSD.Cantidad,
-                                Subtotal = compraInfo.CostosUSD.Subtotal,
-                                IVA = compraInfo.CostosUSD.IVA,
-                                Total = compraInfo.CostosUSD.Total
-                            }
-                            : null,
-                        CostosMN = compraInfo.CostosMN != null
-                            ? new ReportByComprasCostosCostosInfoUnit
-                            {
-                                CostoUnitario = compraInfo.CostosMN.CostoUnitario,
-                                Cantidad = compraInfo.CostosMN.Cantidad,
-                                Subtotal = compraInfo.CostosMN.Subtotal,
-                                IVA = compraInfo.CostosMN.IVA,
-                                Total = compraInfo.CostosMN.Total
-                            }
-                            : null
+                        Cantidad = compra.Cantidad,
+                        CostosUSD = compraInfo.CostosUSD,
+                        CostosMN = compraInfo.CostosMN
                     };
                 }
-                else
-                {
-                    compraInfo.Detalles = null; // No details if not requested
-                }
 
-                // Add the compraInfo to the response list
                 response.Compras.Add(compraInfo);
                 cantidadTotal += compra.Cantidad;
             }
 
-            // Set the total summary in the response
             response.Total = new ReportByComprasCostosTotal
             {
                 Cantidad = cantidadTotal,

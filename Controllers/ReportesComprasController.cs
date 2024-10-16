@@ -49,7 +49,7 @@ namespace ApiForecast.Controllers
 
             if (request.FechaInicio > request.FechaFin)
                 return BadRequest("Fecha inicio debe ser anterior a la fecha fin");
-            var producto = await _context.Productos.FirstOrDefaultAsync(p => p.Product_Id == request.Producto);
+            var producto = await _context.Productos.FirstOrDefaultAsync(p => p.Product_Id == request.Producto && p.Group_Id == request.Grupo);
             if (producto == null)
                 return NotFound("No se encontro el producto");
             //  Obtenemos las compras dependediendo de criterios
@@ -128,7 +128,7 @@ namespace ApiForecast.Controllers
 
             var compras = await _context.Compras
                 .Include(c => c.Product).Include(c => c.Proveedor)
-                .Where(c => c.Fecha >= DateOnly.FromDateTime(request.FechaInicio) && c.Fecha <= DateOnly.FromDateTime(request.FechaFin) && c.Product_id == request.Producto)
+                .Where(c => c.Fecha >= DateOnly.FromDateTime(request.FechaInicio) && c.Fecha <= DateOnly.FromDateTime(request.FechaFin) && c.Product_id == request.Producto && c.Product.Group_Id == request.Grupo)
                 .ToListAsync();
             if(compras.Count == 0)
             {   
