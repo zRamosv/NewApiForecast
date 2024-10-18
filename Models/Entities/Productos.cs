@@ -28,6 +28,6 @@ namespace ApiForecast.Models.Entities
         [JsonIgnore]
         public ICollection<Ventas> Ventas { get; set; }
         [JsonInclude]
-        public Proveedores Proveedores { get; set; }
+        public Proveedores Proveedor { get; set; }
     }
 }

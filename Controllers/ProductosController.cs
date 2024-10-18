@@ -23,16 +23,17 @@ namespace ApiForecast.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _context.Productos.Include(x => x.Grupos).ToListAsync());
+            return Ok(await _context.Productos.Include(x => x.Grupos).Include(x => x.Proveedor).ToListAsync());
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProducto(int id)
         {
-            var producto = await _context.Productos.Include(x => x.Grupos).FirstOrDefaultAsync(x => x.Product_Id == id);
+            var producto = await _context.Productos.Include(x => x.Grupos).Include(x => x.Proveedor).FirstOrDefaultAsync(x => x.Product_Id == id);
             if (producto == null)
             {
                 return NotFound();
             }
+
             return Ok(producto);
         }
 
@@ -47,7 +48,8 @@ namespace ApiForecast.Controllers
                 Stock = producto.Stock,
                 Clave = producto.Clave,
                 Descripcion = producto.Descripcion,
-                Group_Id = producto.Group_Id
+                Group_Id = producto.Group_Id,
+                Provider_id = producto.Provider_id
             };
             _context.Productos.Add(insert);
             await _context.SaveChangesAsync();
