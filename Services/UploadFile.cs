@@ -39,7 +39,7 @@ namespace ApiForecast.Services
             content.Add(filecontent, "File", newFileName);
             content.Add(new StringContent("Forecast"), "Proyecto");
 
-            var response = await _httpClient.PostAsync("https://storage.igrtecapi.site/api/storage/upload", content);
+            var response = await _httpClient.PostAsync("https://storage.igrtcloud.site/api/storage/upload", content);
 
             if (response.IsSuccessStatusCode)
             {
