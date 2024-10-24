@@ -36,6 +36,7 @@ namespace ApiForecast.Controllers
 
             return Ok(accesoSucursal);
         }
+
         [HttpPost]
         public async Task<IActionResult> PostAccesoSucursal(AccesoSucursalesInsert accesoSucursal)
         {
@@ -63,7 +64,7 @@ namespace ApiForecast.Controllers
             
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetAccesoSucursal), new { id = accesoSucursal.User_id }, accesoSucursal);
+            return CreatedAtAction(nameof(GetAccesoSucursal), new { idUser = accesoSucursal.User_id }, accesoSucursal);
         }
 
         [HttpPut("{id}")]
