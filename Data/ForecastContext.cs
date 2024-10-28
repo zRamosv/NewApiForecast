@@ -29,6 +29,8 @@ namespace ApiForecast.Data{
         public DbSet<Usuarios> Usuarios { get; set;}
         public DbSet<Vendedores> Vendedores { get; set;}
         public DbSet<Ventas> Ventas { get; set;}
+        public DbSet<Forecast> Forecast { get; set;}
+        public DbSet<ParametrosConfiguracion> ParametrosConfiguracion { get; set;}
 
         override protected void OnModelCreating(ModelBuilder modelBuilder){
 
