@@ -1,5 +1,6 @@
 using ApiForecast.Data;
 using ApiForecast.Models.DTOs;
+using ApiForecast.Models.GetModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -19,15 +20,37 @@ namespace ApiForecast.Controllers
         [HttpPost("GenerarForecast")]
         public async Task<IActionResult> ForecastGenerate(ForecastDTO forecast)
         {
+            var compras = await _context.Compras.AsNoTracking().Include(x => x.Product).Where(x => x.Product.Group_Id == forecast.Group_id).ToListAsync();
+            if (compras.Count == 0)
+            {
+                return BadRequest("EL producto no tiene movimientos registrados para generar el forecast");
+            }
+            var forecastExistentes = await _context.Forecast.AsNoTracking().Where(x => x.Nombre_ejercicio == forecast.Nombre_Ejercicio).ToListAsync();
+            if (forecastExistentes.Count > 0)
+            {
+                return BadRequest("Ya existe un forecast con el mismo nombre");
+            }
             var groupId = new SqlParameter("@group_id", forecast.Group_id);
             var meses = new SqlParameter("@meses_forecast", forecast.Meses_Forecast);
             var nombre = new SqlParameter("@nombre_ejercicio", forecast.Nombre_Ejercicio);
 
-            await _context.Database.ExecuteSqlRawAsync("EXEC GenerarForecast @group_id, @meses_forecast, @nombre_ejercicio;", groupId, meses, nombre);
+            await _context.Database.ExecuteSqlRawAsync("EXEC GenerarForecastRound @group_id, @meses_forecast, @nombre_ejercicio;", groupId, meses, nombre);
 
-            var forecastCreado = await _context.Forecast.OrderByDescending(x => x.Id_forecast).FirstOrDefaultAsync();
+            var forecastCreado = await _context.Forecast.Include(x => x.Producto).ThenInclude(x => x.Grupos).OrderByDescending(x => x.Id_forecast).FirstOrDefaultAsync();
+            var output = new GetForecast
+            {
+                Id_forecast = forecastCreado.Id_forecast,
+                Group_id = forecastCreado.Producto.Group_Id,
+                Group = forecastCreado.Producto.Grupos,
+                Meses = forecastCreado.Meses,
+                Anio = forecastCreado.Anio,
+                Cantidad_estimado = forecastCreado.Cantidad_estimado,
+                Fecha_generacion = forecastCreado.Fecha_generacion,
+                Nombre_ejercicio = forecastCreado.Nombre_ejercicio,
+                Recomendaciones = forecastCreado.Recomendaciones
+            };
 
-            return Ok(forecastCreado);
+            return Ok(output);
         }
         [HttpGet("GetParametros")]
         public async Task<IActionResult> GetParametros()
@@ -59,18 +82,57 @@ namespace ApiForecast.Controllers
         [HttpGet("GetAllForecasts")]
         public async Task<IActionResult> GetAllForecasts()
         {
-            return Ok(await _context.Forecast.ToListAsync());
+            var forecasts = await _context.Forecast.Include(x => x.Producto).ThenInclude(x => x.Grupos).ToListAsync();
+            var output = forecasts.Select(x => new GetForecast
+            {
+                Id_forecast = x.Id_forecast,
+                Group_id = x.Producto.Group_Id,
+                Group = x.Producto.Grupos,
+                Meses = x.Meses,
+                Anio = x.Anio,
+                Cantidad_estimado = x.Cantidad_estimado,
+                Fecha_generacion = x.Fecha_generacion,
+                Nombre_ejercicio = x.Nombre_ejercicio,
+                Recomendaciones = x.Recomendaciones
+
+            }).ToList();
+            return Ok(output);
         }
+
 
         [HttpGet("GetForecast/{id}")]
         public async Task<IActionResult> GetForecast(int id)
         {
-            var forecast = await _context.Forecast.FirstOrDefaultAsync(x => x.Id_forecast == id);
+            var forecast = await _context.Forecast.Include(x => x.Producto).ThenInclude(x => x.Grupos).FirstOrDefaultAsync(x => x.Id_forecast == id);
             if (forecast == null)
             {
                 return NotFound();
             }
-            return Ok(forecast);
+            var output = new GetForecast
+            {
+                Id_forecast = forecast.Id_forecast,
+                Group_id = forecast.Producto.Group_Id,
+                Group = forecast.Producto.Grupos,
+                Meses = forecast.Meses,
+                Anio = forecast.Anio,
+                Cantidad_estimado = forecast.Cantidad_estimado,
+                Fecha_generacion = forecast.Fecha_generacion,
+                Nombre_ejercicio = forecast.Nombre_ejercicio,
+                Recomendaciones = forecast.Recomendaciones
+            };
+            return Ok(output);
+        }
+        [HttpGet("GetDetalleForecast")]
+        public async Task<IActionResult> GetDetalleForecast([FromQuery]string nombreEjercico)
+        {
+            var detalleForecast = await _context.DetalleForecast.AsNoTracking().Include(x => x.Producto).ThenInclude(x => x.Grupos).Include(x=>x.Producto).ThenInclude(x=>x.Proveedor).Where(x => x.Nombre_Ejercicio == nombreEjercico).ToListAsync();
+            return Ok(detalleForecast);
+        }
+        [HttpGet("GetAllDetallesForecast")]
+        public async Task<IActionResult> GetAllDetallesForecast()
+        {
+            var detalleForecast = await _context.DetalleForecast.AsNoTracking().Include(x => x.Producto).ThenInclude(x => x.Grupos).Include(x=>x.Producto).ThenInclude(x=>x.Proveedor).ToListAsync();
+            return Ok(detalleForecast);
         }
         [HttpDelete("DeleteForecast/{id}")]
         public async Task<IActionResult> DeleteForecast(int id)

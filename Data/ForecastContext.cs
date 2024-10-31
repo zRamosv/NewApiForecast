@@ -31,6 +31,9 @@ namespace ApiForecast.Data{
         public DbSet<Ventas> Ventas { get; set;}
         public DbSet<Forecast> Forecast { get; set;}
         public DbSet<ParametrosConfiguracion> ParametrosConfiguracion { get; set;}
+        public DbSet<DetalleForecast> DetalleForecast { get; set;}
+        public DbSet<OrdenesDeCompra> OrdenesDeCompra { get; set;}
+        public DbSet<DetallesOrdenCompra> DetallesOrdenCompra { get; set;}
 
         override protected void OnModelCreating(ModelBuilder modelBuilder){
 
@@ -116,9 +119,24 @@ namespace ApiForecast.Data{
                 .WithMany(x=>x.Ventas)
                 .HasForeignKey(x=>x.Vendor_Id);    
 
+            modelBuilder.Entity<Forecast>()
+                .HasOne(x=>x.Producto)
+                .WithMany(x=>x.Forecasts)
+                .HasForeignKey(x=>x.Id_producto);
 
+            modelBuilder.Entity<DetalleForecast>()
+                .HasOne(x=>x.Producto)
+                .WithMany(x=>x.DetalleForecast) 
+                .HasForeignKey(x=>x.Id_Producto);    
 
-                
+            modelBuilder.Entity<DetallesOrdenCompra>()  
+                .HasOne(x=>x.OrdenDeCompra)
+                .WithMany(x=>x.Detalles_orden_compra)
+                .HasForeignKey(x=>x.Id_orden); 
+            modelBuilder.Entity<DetallesOrdenCompra>()
+                .HasOne(x=>x.Productos)
+                .WithMany(x=>x.DetallesOrdenCompra)
+                .HasForeignKey(x=>x.Id_producto);     
         }
     }
 }

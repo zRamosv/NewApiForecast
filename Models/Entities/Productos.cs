@@ -27,6 +27,12 @@ namespace ApiForecast.Models.Entities
         public ICollection<Compras> Compras { get; set; }
         [JsonIgnore]
         public ICollection<Ventas> Ventas { get; set; }
+        [JsonIgnore]
+        public ICollection<Forecast> Forecasts { get; set; }
+        [JsonIgnore]
+        public ICollection<DetalleForecast> DetalleForecast { get; set; }
+        [JsonIgnore]
+        public ICollection<DetallesOrdenCompra> DetallesOrdenCompra { get; set; }
         [JsonInclude]
         public Proveedores Proveedor { get; set; }
     }
