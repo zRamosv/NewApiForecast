@@ -49,7 +49,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IReportesService, ReportesService>();
-builder.Services.AddScoped<IInventarioService, InventarioService>();
+builder.Services.AddScoped<ICajaService, CajaService>();
+builder.Services.AddScoped<IVentasService, VentasService>();
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly); 
