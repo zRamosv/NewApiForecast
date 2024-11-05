@@ -26,8 +26,12 @@ namespace ApiForecast.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetParametro(int id)
         {
-            var parametro = await _context.Parametros.Include(x => x.Sucursal).FirstOrDefaultAsync(x => x.Parameters_id == id);
-            if (parametro == null){
+            var parametro = await _context.Parametros
+                .Include(x => x.Sucursal)
+                .FirstOrDefaultAsync(x => x.Sucursal_id == id);
+                
+            if (parametro == null)
+            {
                 return NotFound();
             }
             return Ok(parametro);
@@ -67,7 +71,7 @@ namespace ApiForecast.Controllers
                     }
                 }
             }
-            
+
             await _context.SaveChangesAsync();
             return Ok(update);
         }
