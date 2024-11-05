@@ -27,7 +27,15 @@ namespace ApiForecast.Controllers
         [HttpPost("periodo")]
         public async Task<IActionResult> GenerateReport([FromBody] ReportInputModel request)
         {
-            ReportDTO report = await _generateReportesCompras.GenerateReport(request);
+            var compras = await _context.Compras
+                .Include(c => c.Product)
+                .Where(c => c.Fecha >= DateOnly.FromDateTime(request.FechaInicio) && c.Fecha <= DateOnly.FromDateTime(request.FechaFin))
+                .ToListAsync();
+
+
+            var report = _generateReportesCompras.CreateReportPeriodo(compras, request.Detalle);
+            report.FechaInicio = request.FechaInicio;
+            report.FechaFin = request.FechaFin;
 
             return Ok(report);
 
