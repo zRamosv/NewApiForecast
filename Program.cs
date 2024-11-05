@@ -46,6 +46,7 @@ builder.Services.AddSwaggerGen(c =>
 
 
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly); 
 
 builder.Services.AddCors(options =>
 {
