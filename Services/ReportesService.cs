@@ -31,12 +31,10 @@ namespace ApiForecast.Services
         public async Task<Reportes?> DeleteReporte(int id)
         {
             var delete = await _context.Reportes.FindAsync(id);
-            if (delete == null)
-            {
-                return NotFound();
-            }
+            if (delete is null) return null;
             _context.Reportes.Remove(delete);
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            return delete;
         }
 
         public async Task<Reportes?> GetReporte(int id)

@@ -39,7 +39,7 @@ namespace ApiForecast.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            Reportes eliminado = await _service.DeleteReporte(id);
+            Reportes? eliminado = await _service.DeleteReporte(id);
             return eliminado is null ? NotFound() : NoContent();
         }
 
