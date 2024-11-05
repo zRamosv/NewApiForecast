@@ -8,6 +8,7 @@ namespace ApiForecast.Services
     public class GenerateReportesCompras
     {
         private readonly ForecastContext _context;
+
         public GenerateReportesCompras(ForecastContext context)
         {
             _context = context;
@@ -62,6 +63,7 @@ namespace ApiForecast.Services
 
                 // Sumamos totales
                 totalCantidad += compra.Cantidad;
+
                 if (compra.MonedaUSD)
                 {
                     totalSubtotalUSD += compraInfo.ImportesUSD.Subtotal;

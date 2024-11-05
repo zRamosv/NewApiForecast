@@ -27,7 +27,6 @@ namespace ApiForecast.Controllers
         [HttpPost("periodo")]
         public async Task<IActionResult> GenerateReport([FromBody] ReportInputModel request)
         {
-
             var compras = await _context.Compras
                 .Include(c => c.Product)
                 .Where(c => c.Fecha >= DateOnly.FromDateTime(request.FechaInicio) && c.Fecha <= DateOnly.FromDateTime(request.FechaFin))
@@ -40,8 +39,9 @@ namespace ApiForecast.Controllers
 
             return Ok(report);
 
-
         }
+
+
 
         [HttpPost("producto")]
         public async Task<IActionResult> GeneratePurchaseReport([FromBody] ReportRequest request)
@@ -130,8 +130,8 @@ namespace ApiForecast.Controllers
                 .Include(c => c.Product).Include(c => c.Proveedor)
                 .Where(c => c.Fecha >= DateOnly.FromDateTime(request.FechaInicio) && c.Fecha <= DateOnly.FromDateTime(request.FechaFin) && c.Product_id == request.Producto && c.Product.Group_Id == request.Grupo)
                 .ToListAsync();
-            if(compras.Count == 0)
-            {   
+            if (compras.Count == 0)
+            {
                 return NotFound("No se encontraron compras");
             }
             var report = _generateReportesCompras.CreateReportByComprasCostos(compras, request);

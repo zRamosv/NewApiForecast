@@ -1,6 +1,7 @@
 using ApiForecast.Data;
 using ApiForecast.Models.Entities;
 using ApiForecast.Models.InsertModels;
+using ApiForecast.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,52 +11,36 @@ namespace ApiForecast.Controllers
     [Route("api/[controller]")]
     public class ReportesController : ControllerBase
     {
-        private readonly ForecastContext _context;
-        public ReportesController(ForecastContext context)
+        private readonly IReportesService _service;
+
+        public ReportesController(IReportesService service)
         {
-            _context = context;
+            _service = service;
         }
+
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _context.Reportes.ToListAsync());
+            return Ok(await _service.GetReportes());
 
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetReporte(int id)
         {
-            var reporte = await _context.Reportes.FirstOrDefaultAsync(x => x.Report_id == id);
-            if (reporte == null){
-                return NotFound();
-            }
-            return Ok(reporte);
+            var reporte = await _service.GetReporte(id);
+            return reporte is null ? NotFound() : Ok(reporte);
         }
         [HttpPost]
         public async Task<IActionResult> Post(ReportesInsert reporte)
         {
-            var insert = new Reportes
-            {
-                Tipo = reporte.Tipo,
-                Fecha_inicio = DateOnly.FromDateTime(reporte.Fecha_inicio),
-                Fecha_fin = DateOnly.FromDateTime(reporte.Fecha_fin),
-                Detalles = reporte.Detalles
-
-            };
-            _context.Reportes.Add(insert);
-            await _context.SaveChangesAsync();
+            var newReporte = await _service.CreateReporte(reporte);
             return Ok(reporte);
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var delete = await _context.Reportes.FindAsync(id);
-            if (delete == null)
-            {
-                return NotFound();
-            }
-            _context.Reportes.Remove(delete);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            Reportes? eliminado = await _service.DeleteReporte(id);
+            return eliminado is null ? NotFound() : NoContent();
         }
 
     }

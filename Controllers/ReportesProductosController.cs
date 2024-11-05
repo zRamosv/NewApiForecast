@@ -19,21 +19,23 @@ namespace ApiForecast.Controllers
 
             _context = context;
             _generateReportes = generateReportes;
-            
+
         }
 
 
-    [HttpPost("proveedor")]
-    public async Task<IActionResult> GenerateReportProvider( ReporteProductosProveedorRequest request){
+        [HttpPost("proveedor")]
+        public async Task<IActionResult> GenerateReportProvider(ReporteProductosProveedorRequest request)
+        {
 
-        var productos = await _context.Productos.Include(x => x.Grupos).Include(x => x.Proveedor).Where(x => x.Provider_id == request.Proveedor).ToListAsync();
-        
-        if(productos == null){
-            return NotFound();
+            var productos = await _context.Productos.Include(x => x.Grupos).Include(x => x.Proveedor).Where(x => x.Provider_id == request.Proveedor).ToListAsync();
+
+            if (productos == null)
+            {
+                return NotFound();
+            }
+
+            var report = _generateReportes.GenerateReportProduct(productos, request);
+            return Ok(report);
         }
-        
-        var report =_generateReportes.GenerateReportProduct(productos , request);
-        return Ok(report);
-    }
     }
 }
