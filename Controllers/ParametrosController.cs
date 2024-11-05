@@ -24,11 +24,11 @@ namespace ApiForecast.Controllers
             return Ok(await _context.Parametros.Include(x => x.Sucursal).ToListAsync());
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetParametro(int id)
+        public async Task<IActionResult> GetParametro(int sucursalId)
         {
             var parametro = await _context.Parametros
                 .Include(x => x.Sucursal)
-                .FirstOrDefaultAsync(x => x.Sucursal_id == id);
+                .FirstOrDefaultAsync(x => x.Sucursal_id == sucursalId);
                 
             if (parametro == null)
             {
