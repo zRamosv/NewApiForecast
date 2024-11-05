@@ -8,6 +8,7 @@ namespace ApiForecast.Services
     public class GenerateReportesCompras
     {
         private readonly ForecastContext _context;
+
         public GenerateReportesCompras(ForecastContext context)
         {
             _context = context;
@@ -62,18 +63,10 @@ namespace ApiForecast.Services
 
                 // Sumamos totales
                 totalCantidad += compra.Cantidad;
-                if (compra.MonedaUSD)
-                {
-                    totalSubtotalUSD += compraInfo.ImportesUSD.Subtotal;
-                    totalIVAUSD += compraInfo.ImportesUSD.IVA;
-                    totalTotalUSD += compraInfo.ImportesUSD.Total;
-                }
-                else
-                {
-                    totalSubtotalMN += compraInfo.ImportesMN.Subtotal;
-                    totalIVAMN += compraInfo.ImportesMN.IVA;
-                    totalTotalMN += compraInfo.ImportesMN.Total;
-                }
+
+                totalIVAUSD += compraInfo.ImportesUSD.IVA;
+                totalTotalUSD += compraInfo.ImportesUSD.Total;
+                totalSubtotalMN += compra.MonedaUSD ? compraInfo.ImportesUSD.Subtotal : compraInfo.ImportesMN.Subtotal;
 
                 response.Compras.Add(compraInfo);
             }
@@ -98,6 +91,20 @@ namespace ApiForecast.Services
 
             return response;
 
+        }
+
+        public async Task<ReportDTO> GenerateReport(ReportInputModel request)
+        {
+            var compras = await _context.Compras
+                            .Include(c => c.Product)
+                            .Where(c => c.Fecha >= DateOnly.FromDateTime(request.FechaInicio) && c.Fecha <= DateOnly.FromDateTime(request.FechaFin))
+                            .ToListAsync();
+
+
+            var report = CreateReportPeriodo(compras, request.Detalle);
+            report.FechaInicio = request.FechaInicio;
+            report.FechaFin = request.FechaFin;
+            return report;
         }
         //TO DO
         public ReportByComprasCostosResponse CreateReportByComprasCostos(List<Compras> compras, ReportByComprasCostosRequest request)
