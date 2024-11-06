@@ -67,7 +67,6 @@ namespace NewApiForecast.Services
             existingProduct.Clave = producto.Clave ?? existingProduct.Clave;
             existingProduct.Descripcion = producto.Descripcion ?? existingProduct.Descripcion;
             existingProduct.Group_Id = producto.Group_Id ?? existingProduct.Group_Id;
-            existingProduct.Provider_id = existingProduct.Provider_id;
 
             await _context.SaveChangesAsync();
             return existingProduct;

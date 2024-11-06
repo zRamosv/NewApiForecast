@@ -1,3 +1,5 @@
+using ApiForecast.Models.Entities;
+using ApiForecast.Models.InsertModels;
 using AutoMapper;
 
 namespace ApiForecast.Services
@@ -8,6 +10,9 @@ namespace ApiForecast.Services
         {
             CreateMap<Reportes, ReportesInsert>();
             CreateMap<ReportesInsert, Reportes>();
+            CreateMap<Ventas, VentasInsert>();
+            CreateMap<VentasInsert, Ventas>();
+            
         }
     }
 }

@@ -2,6 +2,8 @@ using ApiForecast.Data;
 using ApiForecast.Models.DTOs;
 using ApiForecast.Models.Entities;
 using ApiForecast.Models.InsertModels;
+using ApiForecast.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,82 +14,47 @@ namespace ApiForecast.Controllers
     [Route("api/[controller]")]
     public class VentasController : ControllerBase
     {
-        private readonly ForecastContext _context;
+        private IVentasService _ventasService;
+        
 
-        public VentasController(ForecastContext context)
+        public VentasController(IVentasService ventasService )
         {
-            _context = context;
+            _ventasService = ventasService;
+            
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            return Ok(await _context.Ventas.Include(x => x.Cliente).Include(x => x.Productos).Include(x => x.Vendedores).ToListAsync());
+            var ventas = await _ventasService.GetVentasAsync();
+            return Ok();
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVenta(int id)
         {
-            var venta = await _context.Ventas.Include(x => x.Cliente).Include(x => x.Productos).Include(x => x.Vendedores).FirstOrDefaultAsync(x => x.Venta_Id == id);
-            if (venta == null){
-                return NotFound();
-            }
-            return Ok(venta);
+            var venta = await _ventasService.GetVentaByIdAsync(id);
+            return venta != null ? Ok(venta) : NotFound();
         }
         [HttpPost]
         public async Task<IActionResult> Post(VentasInsert venta)
         {
-            var insert = new Ventas
-            {
-                Product_Id = venta.Product_Id,
-                Fecha = DateOnly.FromDateTime(venta.Fecha),
-                Cantidad = venta.Cantidad,
-                Precio = venta.Precio,
-                Client_id = venta.Client_id,
-                MonedaUSD = venta.MonedaUSD,
-                Vendor_Id = venta.Vendor_Id
-            };
-
-            _context.Ventas.Add(insert);
-            await _context.SaveChangesAsync();
+            Ventas insert = await _ventasService.CreateVenta(venta);
             return CreatedAtAction(nameof(GetVenta), new { id = insert.Venta_Id }, insert);
+
+            
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, VentasDTO venta)
         {
-            var update = await _context.Ventas.FirstOrDefaultAsync(x => x.Venta_Id == id);
-            if (update == null)
-            {
-                return NotFound();
-            }
-            foreach (var property in update.GetType().GetProperties())
-            {
-                var dtoProperty = venta.GetType().GetProperty(property.Name);
-                if (dtoProperty != null)
-                {
-                    var newValue = dtoProperty.GetValue(venta);
-                    if (newValue != null)
-                    {
-                        property.SetValue(update, newValue);
-                    }
-                }
-            }
-
-            await _context.SaveChangesAsync();
-
-            return Ok(update);
+            var update = await _ventasService.UpdateVenta(id, venta);
+            return update is not null ? Ok(update) : NotFound();
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var delete = await _context.Ventas.FirstOrDefaultAsync(x => x.Venta_Id == id);
-            if (delete == null)
-            {
-                return NotFound();
-            }
-            _context.Ventas.Remove(delete);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            var delete = await _ventasService.DeleteVenta(id);
+            return delete is null ? NotFound() : NoContent();
         }
     }
 }
