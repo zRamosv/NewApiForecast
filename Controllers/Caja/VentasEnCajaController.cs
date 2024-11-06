@@ -1,3 +1,4 @@
+using ApiForecast.Models.DTOs.CajaModulo;
 using ApiForecast.Models.InsertModels;
 using ApiForecast.Services.Caja;
 using Microsoft.AspNetCore.Mvc;
@@ -5,18 +6,18 @@ using NewApiForecast.Models.DTOs.VentasModulo;
 
 namespace NewApiForecast.Controllers.Caja
 {
-    [Route("api/[controller]")]
+    [Route("api/ModuloVentas/[controller]")]
     [ApiController]
-    public class VentasEnCajaController : ControllerBase
+    public class CajaController : ControllerBase
     {
         private readonly ICajaService _cajaService;
-        public VentasEnCajaController(ICajaService cajaService)
+        public CajaController(ICajaService cajaService)
         {
             _cajaService = cajaService;
 
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetVenta(int id, [FromBody] BuscarFacturaDTO buscarFactura)
+        public async Task<IActionResult> GetFactura(int id, [FromBody] BuscarFacturaDTO buscarFactura)
         {
             var venta = await _cajaService.VerFactura(id, buscarFactura);
             return venta != null ? Ok(venta) : NotFound();
@@ -28,6 +29,6 @@ namespace NewApiForecast.Controllers.Caja
             var venta = await _cajaService.VenderACliente(createVenta);
             return venta != null ? Ok(venta) : NotFound();
         }
-
+        
     }
 }
