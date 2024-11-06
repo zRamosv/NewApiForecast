@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NewApiForecast.Services;
+using NewApiForecast.Services.Caja;
+using NewApiForecast.Services.Ventas;
 using NewApiForecast.Services.VentasModulo;
 
 
@@ -49,9 +51,12 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IReportesService, ReportesService>();
-builder.Services.AddScoped<ICajaService, CajaService>();
 builder.Services.AddScoped<IVentasService, VentasService>();
 builder.Services.AddScoped<IDevolucionesService, DevolucionesService>();
+builder.Services.AddScoped<IFacturasService, FacturasService>();
+builder.Services.AddScoped<IPedidosService, PedidosService>();
+builder.Services.AddScoped<ICajaService, CajaService>();
+
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly); 

@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using NewApiForecast.Models.Entities;
+using NewApiForecast.Models.Entities.VentasModulo;
 
 
 namespace ApiForecast.Models.Entities
@@ -15,8 +17,12 @@ namespace ApiForecast.Models.Entities
         public string Nombre { get; set; }
         public string Direccion { get; set; }
         public string Contacto { get; set; }
+        [JsonIgnore]
+        public List<Pedido> Pedidos { get; set; }
 
         [JsonIgnore]
         public ICollection<Ventas> Ventas { get; set; }
+        [JsonIgnore]
+        public ICollection<CuentasPorCobrar> CuentasPorCobrar { get; set; }
     }
 }
