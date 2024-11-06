@@ -1,25 +1,45 @@
 
+using ApiForecast.Models.DTOs.CajaModulo;
 using ApiForecast.Models.Entities;
 using ApiForecast.Models.InsertModels;
-using ApiForecast.Services;
-using ApiForecast.Services.Caja;
+
 using NewApiForecast.Models.DTOs.VentasModulo;
 
-namespace ApiForecast.Controllers.Caja
+namespace ApiForecast.Services.Caja
 {
     public class CajaService : ICajaService
     {
         private IVentasService _ventasService;
+        private IDevolucionesService _devolucionesService;
 
-        public CajaService(IVentasService ventasService)
+        public CajaService(IVentasService ventasService, IDevolucionesService devolucionesService)
         {
             _ventasService = ventasService;
+            _devolucionesService = devolucionesService;
         }
 
-        public Task<VerFacturaDTO> Devolver(int venta_id)
+        public async Task<Devolucion> Devolver(int venta_id)
         {
-            throw new NotImplementedException();
+            var venta = await _ventasService.GetVentaByIdAsync(venta_id);
+            if (venta == null)
+            {
+                throw new System.Exception("No se encontró la venta");
+            }
+            var devolucion = new Devolucion
+            {
+                Pedido = venta,
+                Pedido_ID = venta_id,
+                Devuelto = System.DateTime.Now,
+                Cliente = venta.Cliente,
+                Importe = venta.Precio,
+                Moneda = venta.MonedaUSD ? "USD" : "MXN",
+                TipoDeCambio = (decimal)(venta.MonedaUSD ? 0.16f : 1)
+            };
+            await _devolucionesService.CreateDevolucion(devolucion);
+            return devolucion;
         }
+
+
 
         public async Task<VerFacturaDTO> VenderACliente(VentasInsert venta)
         {
@@ -54,5 +74,6 @@ namespace ApiForecast.Controllers.Caja
                 TipoDeCambio = 0.16f
             };
         }
+
     }
 }
