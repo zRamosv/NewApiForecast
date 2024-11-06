@@ -1,10 +1,13 @@
 using System.Text;
+using ApiForecast.Controllers.Caja;
 using ApiForecast.Data;
 using ApiForecast.Services;
+using ApiForecast.Services.Caja;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NewApiForecast.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +47,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 });
 
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IReportesService, ReportesService>();
+builder.Services.AddScoped<IInventarioService, InventarioService>();
 
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly); 
