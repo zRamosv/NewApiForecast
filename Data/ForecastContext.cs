@@ -34,6 +34,7 @@ namespace ApiForecast.Data{
         public DbSet<DetalleForecast> DetalleForecast { get; set;}
         public DbSet<OrdenesDeCompra> OrdenesDeCompra { get; set;}
         public DbSet<DetallesOrdenCompra> DetallesOrdenCompra { get; set;}
+        public DbSet<Devolucion> Devoluciones { get; set;}
 
         override protected void OnModelCreating(ModelBuilder modelBuilder){
 
@@ -137,6 +138,8 @@ namespace ApiForecast.Data{
                 .HasOne(x=>x.Productos)
                 .WithMany(x=>x.DetallesOrdenCompra)
                 .HasForeignKey(x=>x.Id_producto);     
+
+            modelBuilder.Entity<Devolucion>().HasOne(x=>x.Cliente);
         }
     }
 }
