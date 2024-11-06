@@ -10,7 +10,6 @@ namespace ApiForecast.Services
         Task<Devolucion> GetDevolucion(int id);
         Task<List<Devolucion>> GetDevolucionsPorCliente(int Id_Cliente);
         Task<Devolucion> CreateDevolucion(Devolucion devolucion);
-
         Task<List<Devolucion>> GetDevolucionesDeClienteEnPeriodo(BuscarDevolucionDTO buscarDevolucion);
     }
 }

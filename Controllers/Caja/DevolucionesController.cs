@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using ApiForecast.Models.DTOs.CajaModulo;
 using ApiForecast.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -9,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace NewApiForecast.Controllers.Caja
 {
     [ApiController]
-    [Route("api/ModuloVentas/[controller]")]
-    public class Devoluciones : ControllerBase
+    [Route("api/ModuloVentas/Devoluciones")]
+    public class DevolucionesController : ControllerBase
     {
         private readonly IDevolucionesService _devolucionesService;
-        public Devoluciones(IDevolucionesService devolucionesService)
+        public DevolucionesController(IDevolucionesService devolucionesService)
         {
             _devolucionesService = devolucionesService;
         }
@@ -23,11 +20,13 @@ namespace NewApiForecast.Controllers.Caja
             var devoluciones = await _devolucionesService.GetDevolucion(id);
             return devoluciones != null ? Ok(devoluciones) : NotFound();
         }
-        [HttpGet]
-        public async Task<IActionResult> GetDevolucionesDeClienteEnFecha([FromBody] BuscarDevolucionDTO buscarDevolucion)
+        
+        [Route("BuscarDevolucion")]
+        [HttpPost]
+        public async Task<IActionResult> BuscarDevolucion([FromBody] BuscarDevolucionDTO buscarDevolucion)
         {
-            var devoluciones = await _devolucionesService.GetDevolucionesDeClienteEnPeriodo(buscarDevolucion);
-            return devoluciones != null ? Ok(devoluciones) : NotFound();
+            var devolucion = await _devolucionesService.GetDevolucionesDeClienteEnPeriodo(buscarDevolucion);
+            return devolucion != null ? Ok(devolucion) : NotFound();
         }
     }
 }

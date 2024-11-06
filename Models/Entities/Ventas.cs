@@ -15,10 +15,13 @@ namespace ApiForecast.Models.Entities
         public int Cantidad { get; set; }
         [Column(TypeName = "decimal(18,4)")]
         public decimal Precio { get; set; }
+        [ForeignKey("Client_id")]
         public int Client_id { get; set; }
         public Clientes Cliente { get; set; }
         public bool MonedaUSD { get; set; }
+        [ForeignKey("Vendor_Id")]
         public int Vendor_Id { get; set; }
         public Vendedores Vendedores { get; set; }
+        public decimal TipoDeCambio { get; set; }
     }
 }
