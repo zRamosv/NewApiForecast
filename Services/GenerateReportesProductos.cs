@@ -55,12 +55,12 @@ namespace ApiForecast.Services
                         Proveedor = new ProveedorInfoByProvider
                         {
                             Id = grupo.Key.Group_id,
-                            Nombre = grupo.Key.Clave
+                            Nombre = grupo.Key.descripcion
                         },
                         Grupo = new ReporteProductosProveedorGrupoInfo
                         {
                             Id = grupo.Key.Group_id,
-                            Nombre = grupo.Key.Clave
+                            Nombre = grupo.Key.descripcion
                         },
                         Productos = grupo.Key.Productos.Select(x => new ReporteProductosProveedorProductoInfo
                         {

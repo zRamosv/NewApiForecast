@@ -9,7 +9,7 @@ namespace ApiForecast.Models.Entities{
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Group_id {get; set;}
-        public string Clave {get; set;}
+        public string descripcion {get; set;}
         [JsonIgnore]
         public ICollection<Productos> Productos {get; set;}
         

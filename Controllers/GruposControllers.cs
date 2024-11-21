@@ -39,7 +39,7 @@ namespace ApiForecast.Controllers
         public async Task<IActionResult> PostGrupos(GruposInsert grupo)
         {
             var insert = new Grupos{
-                Clave = grupo.Clave,
+                descripcion = grupo.Clave,
             };
             _context.Grupos.Add(insert);
             await _context.SaveChangesAsync();
@@ -53,7 +53,7 @@ namespace ApiForecast.Controllers
             if (update == null){
                 return NotFound();
             }
-            update.Clave = grupo.Clave ?? update.Clave;
+            update.descripcion = grupo.Clave ?? update.descripcion;
             
             await _context.SaveChangesAsync();
             return Ok(update);
